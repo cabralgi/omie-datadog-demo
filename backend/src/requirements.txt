@@ -1,0 +1,3 @@
+datadog-lambda==6.96.0
+ddtrace==2.15.1
+pymongo==4.10.1

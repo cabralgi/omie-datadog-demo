@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Datadog demo (Lambda + API Gateway + MongoDB) without AWS integration
+
+Parameters:
+  DatadogExtensionLayerArn:
+    Type: String
+    Description: ARN da Datadog Lambda Extension (por regiao)
+  MongoUri:
+    Type: String
+    NoEcho: true
+  MongoDbName:
+    Type: String
+    Default: demo
+  DatadogApiKey:
+    Type: String
+    NoEcho: true
+  DatadogSite:
+    Type: String
+    Default: datadoghq.com
+  DatadogEnv:
+    Type: String
+    Default: demo
+  DatadogService:
+    Type: String
+    Default: backend-api
+  DatadogVersion:
+    Type: String
+    Default: "1"
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 10
+    MemorySize: 512
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        MONGO_URI: !Ref MongoUri
+        MONGO_DB_NAME: !Ref MongoDbName
+        DD_API_KEY: !Ref DatadogApiKey
+        DD_SITE: !Ref DatadogSite
+        DD_ENV: !Ref DatadogEnv
+        DD_SERVICE: !Ref DatadogService
+        DD_VERSION: !Ref DatadogVersion
+        DD_TRACE_ENABLED: "true"
+        DD_LOGS_INJECTION: "true"
+        DD_SERVERLESS_LOGS_ENABLED: "true"
+        DD_CAPTURE_LAMBDA_PAYLOAD: "false"
+    Layers:
+      - !Ref DatadogExtensionLayerArn
+
+Resources:
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+          - x-datadog-trace-id
+          - x-datadog-parent-id
+          - x-datadog-sampling-priority
+          - x-datadog-origin
+          - traceparent
+          - tracestate
+          - x-action-name
+          - x-action-raw-id
+
+  GetProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: get_products.app.handler
+      Events:
+        GetProducts:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /getProducts
+            Method: GET
+        GetProductsOptions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /getProducts
+            Method: OPTIONS
+
+  SearchOrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: search_orders.app.handler
+      Events:
+        SearchOrders:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /searchOrders
+            Method: POST
+        SearchOrdersOptions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /searchOrders
+            Method: OPTIONS
+
+  CreateCheckoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: create_checkout.app.handler
+      Events:
+        CreateCheckout:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /createCheckout
+            Method: POST
+        CreateCheckoutOptions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /createCheckout
+            Method: OPTIONS
+
+Outputs:
+  ApiUrl:
+    Description: URL do API Gateway
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com"

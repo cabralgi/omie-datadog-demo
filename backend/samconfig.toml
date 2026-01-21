@@ -1,0 +1,15 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "omie-dd-demo"
+resolve_s3 = true
+s3_prefix = "omie-dd-demo"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = "DatadogExtensionLayerArn=\"arn:aws:lambda:us-east-1:464622532012:layer:Datadog-Extension:84\" MongoDbName=\"omie-demo\" DatadogSite=\"datadoghq.com\" DatadogEnv=\"demo\" DatadogService=\"backend-api\" DatadogVersion=\"1\""
+image_repositories = []
+
+[default.global.parameters]
+region = "us-east-1"

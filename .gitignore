@@ -1,0 +1,9 @@
+**/.aws-sam/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/backend/src/__pycache__/
+/backend/src/*.egg-info/
+*.pyc
+*.log
+*.local
