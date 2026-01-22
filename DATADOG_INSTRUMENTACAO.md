@@ -91,6 +91,14 @@ VITE_DD_RUM_REPLAY_SAMPLE_RATE=100
 - Ela coleta logs, traces e metricas e envia direto para o Datadog.
 - Evita integracao AWS (sem CloudWatch Forwarder).
 
+**O que e `datadog-lambda`**
+- E a biblioteca que faz o wrapper do handler da Lambda.
+- Ela inicializa o tracer e coleta o trace da execucao automaticamente.
+
+**O que e `ddtrace`**
+- E o tracer oficial da Datadog para Python.
+- Ele instrumenta bibliotecas (como `pymongo`) para gerar spans de queries.
+
 **Por que e simples**
 - So adiciona uma layer (Extension) e variaveis de ambiente.
 - Nada de agentes host-based nem integracao AWS.
@@ -129,7 +137,6 @@ flowchart LR
 - Spans do Mongo aparecem automaticamente no trace da Lambda.
 
 ### 3.2 DBM (metricas e performance do banco)
-**O que foi feito**
 - Um Datadog Agent roda em uma EC2 com acesso ao Atlas.
 - O Agent coleta metricas e queries do Mongo (DBM).
 
@@ -146,11 +153,10 @@ flowchart LR
 5. Spans e logs aparecem correlacionados no Datadog
 6. DBM mostra performance do Mongo no mesmo painel
 
-## 5) Resumo para o cliente (simplicidade)
+## 5) Resumo 
 
 - Front: 1 SDK + variaveis de ambiente
 - Backend: 1 Extension + vars
-- Mongo: 1 Agent em EC2
 - Correlacao automatica (sem codigo extra)
 
 ## 6) Arquivos onde foi feito
