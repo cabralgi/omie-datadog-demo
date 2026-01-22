@@ -62,7 +62,7 @@ const App = () => {
     <div className="app">
       <header className="header">
         <h1>Datadog Demo</h1>
-        <p>React SPA com botoes reutilizados e nomes legiveis.</p>
+        <p>React SPA sem rotas de backend e com chamadas ao MongoDB.</p>
       </header>
 
       {!apiBaseReady && (
@@ -80,7 +80,7 @@ const App = () => {
             className="action-button"
             onClick={() => handleAction(action)}
           >
-            {action.name} ({action.rawId})
+            {action.name}
           </button>
         ))}
       </div>

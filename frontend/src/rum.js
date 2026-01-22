@@ -8,6 +8,11 @@ export const initRum = () => {
   const env = import.meta.env.VITE_DD_ENV || "demo";
   const version = import.meta.env.VITE_DD_VERSION || "1";
   const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+  const replayEnabled =
+    (import.meta.env.VITE_DD_RUM_REPLAY || "false").toLowerCase() === "true";
+  const replaySampleRate = Number(
+    import.meta.env.VITE_DD_RUM_REPLAY_SAMPLE_RATE || (replayEnabled ? 100 : 0)
+  );
 
   if (!appId || !clientToken) {
     console.warn("Datadog RUM not configured: missing app id or client token.");
@@ -22,7 +27,9 @@ export const initRum = () => {
     env,
     version,
     sessionSampleRate: 100,
-    sessionReplaySampleRate: 0,
+    sessionReplaySampleRate: replaySampleRate,
+    startSessionReplayRecordingManually: false,
+    defaultPrivacyLevel: "mask-user-input",
     trackResources: true,
     trackLongTasks: true,
     trackUserInteractions: true,
@@ -30,5 +37,10 @@ export const initRum = () => {
     traceSampleRate: 100
   });
 
-  // Session Replay requires the replay package; keep disabled by default.
+  if (
+    replayEnabled &&
+    typeof datadogRum.startSessionReplayRecording === "function"
+  ) {
+    datadogRum.startSessionReplayRecording();
+  }
 };
