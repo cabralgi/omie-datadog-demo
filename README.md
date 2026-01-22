@@ -53,6 +53,31 @@ mongodb+srv://demo_user:demo_pass@cluster0.xxx.mongodb.net/demo?retryWrites=true
 
 ---
 
+# 2.1 MongoDB DBM (metricas e queries)
+
+Para ver **DBM** (Database Monitoring) do Mongo, e necessario um **Datadog Agent**
+rodando em uma maquina que consiga acessar o cluster. Em Atlas, use uma EC2
+pequena na mesma regiao e libere o IP no Atlas.
+
+Passo a passo resumido:
+1. Crie uma EC2 Linux (t2.micro) na mesma regiao do Atlas.
+2. Instale o Datadog Agent na EC2.
+3. Configure o arquivo `conf.d/mongo.d/conf.yaml` com:
+```
+instances:
+  - hosts:
+      - "mongodb+srv://USER:PASS@clusteromie.xxxxx.mongodb.net/?appName=ClusterOmie"
+    username: "USER"
+    password: "PASS"
+    dbm: true
+```
+4. No Atlas, crie um usuario com permissao `clusterMonitor` (ou `readAnyDatabase`).
+5. Reinicie o Agent.
+
+Isso habilita metricas de banco e queries no Datadog (DBM).
+
+---
+
 # 3) AWS (backend com SAM - Python)
 
 ## 3.1 Ajustar parâmetros do SAM
@@ -110,6 +135,8 @@ VITE_DD_SITE=datadoghq.com
 VITE_DD_SERVICE=frontend-spa
 VITE_DD_ENV=demo
 VITE_DD_VERSION=1
+VITE_DD_RUM_REPLAY=true
+VITE_DD_RUM_REPLAY_SAMPLE_RATE=100
 ```
 
 No Datadog:
@@ -118,6 +145,10 @@ No Datadog:
 3. Tipo: `Browser`
 4. Copie `Application ID` e `Client Token`
 5. Cole no `.env` acima
+
+Session Replay:
+- Mantenha `VITE_DD_RUM_REPLAY=true` para habilitar.
+- Ajuste `VITE_DD_RUM_REPLAY_SAMPLE_RATE` (0 a 100).
 
 ## 4.3 Rodar local
 ```bash
